@@ -24,9 +24,6 @@ public class APFRobot extends Agent {
     //开始时间
     long startTime;
 
-    //当前时间
-    long currentTime;
-
     //结束时间
     long endTime;
 
@@ -35,6 +32,7 @@ public class APFRobot extends Agent {
 
     double curForce;
 
+    //
     public int freeze_time;
 
     public APFRobot(Vector3d position, String name) {
@@ -51,6 +49,7 @@ public class APFRobot extends Agent {
 
     /**
      * 获取机器人速度
+     *
      * @return
      */
     public Vector3d getVeclocity() {
@@ -59,34 +58,35 @@ public class APFRobot extends Agent {
 
     /**
      * 获取机器人所处位置象限
+     *
      * @param vector
      * @return
      */
     private int getQuadrant(Vector2d vector) {
         double x = vector.x;
         double y = vector.y;
-        if(x > 0 && y > 0) {
+        if (x > 0 && y > 0) {
             //第一象限
             return 1;
-        } else if(x < 0 && y > 0) {
+        } else if (x < 0 && y > 0) {
             //第二象限
             return 2;
-        } else if(x < 0 && y < 0) {
+        } else if (x < 0 && y < 0) {
             //第三象限
             return 3;
-        } else if(x > 0 && y < 0) {
+        } else if (x > 0 && y < 0) {
             //第四象限
             return 4;
-        } else if(x > 0 && y == 0) {
+        } else if (x > 0 && y == 0) {
             //x轴正半轴
             return -1;
-        } else if(x == 0 && y > 0) {
+        } else if (x == 0 && y > 0) {
             //y轴正半轴
             return -2;
-        } else if(x < 0 && y == 0) {
+        } else if (x < 0 && y == 0) {
             //x轴负半轴
             return -2;
-        } else if(x == 0 && y < 0) {
+        } else if (x == 0 && y < 0) {
             //y轴负半轴
             return -2;
         } else {
@@ -96,6 +96,7 @@ public class APFRobot extends Agent {
 
     /**
      * 获取角度向量
+     *
      * @param v1
      * @param v2
      * @return
@@ -103,24 +104,18 @@ public class APFRobot extends Agent {
     private double getAngle(Vector2d v1, Vector2d v2) {
         double k = v1.y / v1.x;
         double y = k * v2.x;
-        switch (getQuadrant(v1))
-        {
+        switch (getQuadrant(v1)) {
             case 1:
             case 4:
             case -1:
-                if (v2.y > y)
-                {
+                if (v2.y > y) {
                     return v1.angle(v2);
-                } else if (v2.y < y)
-                {
+                } else if (v2.y < y) {
                     return 2 * Math.PI - v1.angle(v2);
-                } else
-                {
-                    if (v1.x * v2.x < 0)
-                    {
+                } else {
+                    if (v1.x * v2.x < 0) {
                         return Math.PI;
-                    } else
-                    {
+                    } else {
                         return 0;
                     }
                 }
@@ -140,26 +135,20 @@ public class APFRobot extends Agent {
                 }
             case -2:
                 int i = getQuadrant(v2);
-                if (i == -4)
-                {
+                if (i == -4) {
                     return Math.PI;
-                } else if (i == -2 || i == -1 || i == 1 || i == 4)
-                {
+                } else if (i == -2 || i == -1 || i == 1 || i == 4) {
                     return 2 * Math.PI - v1.angle(v2);
-                } else
-                {
+                } else {
                     return v1.angle(v2);
                 }
             case -4:
                 int j = getQuadrant(v2);
-                if (j == -1)
-                {
+                if (j == -1) {
                     return Math.PI;
-                } else if (j == -4 || j == -1 || j == 1 || j == 4)
-                {
+                } else if (j == -4 || j == -1 || j == 1 || j == 4) {
                     return v1.angle(v2);
-                } else
-                {
+                } else {
                     return 2 * Math.PI - v1.angle(v2);
                 }
             default:
@@ -167,8 +156,7 @@ public class APFRobot extends Agent {
         }
     }
 
-    private Vector2d transform(Vector2d v, Vector2d point)
-    {
+    private Vector2d transform(Vector2d v, Vector2d point) {
         Vector2d global = new Vector2d(1, 0);
         double alfa = getAngle(global, v);
         double beta = getAngle(point, v);
@@ -185,12 +173,12 @@ public class APFRobot extends Agent {
 
     /**
      * 计算斥力
+     *
      * @param distance
      * @param range
      * @return
      */
-    private double repelForce(double distance, double range)
-    {
+    private double repelForce(double distance, double range) {
         double force = 0;
         Point3d p = new Point3d();
         getCoords(p);
@@ -198,10 +186,9 @@ public class APFRobot extends Agent {
         Vector2d toGoal = new Vector2d((MyEnv.end2d.x - pos.x),
                 (MyEnv.end2d.y - pos.y));
         double disGoal = toGoal.length();
-        double n=0.5;
-        if (distance <= range)
-        {
-            force = - MyEnv.repelConstant / (distance * distance);
+        double n = 0.5;
+        if (distance <= range) {
+            force = -MyEnv.repelConstant / (distance * distance);
         }
 
         return force;
@@ -209,16 +196,18 @@ public class APFRobot extends Agent {
 
     /**
      * 计算引力
+     *
      * @param distance
      * @return
      */
     private double attractForce(double distance) {
-        double force = MyEnv.attractConstant / distance /distance;
+        double force = MyEnv.attractConstant / distance / distance;
         return force;
     }
 
     /**
      * 判断是否到达终点
+     *
      * @return
      */
     private boolean checkGoal() {
@@ -230,8 +219,7 @@ public class APFRobot extends Agent {
         if (currentPos.distance(goalPos) <= 0.9) // 如果当前距离目标点小于0.9那么即认为是到达
         {
             return true;
-        } else
-        {
+        } else {
             return false;
         }
     }
@@ -254,12 +242,12 @@ public class APFRobot extends Agent {
     public void initBehavior() {
         //获取开始时间
         startTime = System.currentTimeMillis();
+        flag = false;
     }
 
     public void performBehavior() {
         // 为了防止智能体剧烈晃动，每20帧计算一次受力
-        if (getCounter() % 20 == 0)
-        {
+        if (getCounter() % 20 == 0) {
             //获取机器人移动速度
             Vector3d velocity = getVeclocity();
 
@@ -277,9 +265,9 @@ public class APFRobot extends Agent {
             Vector2d pre_pos = new Vector2d(p.z, p.x);
 
             //获取三个方位障碍物的距离
-            double d0 = sonars.getMeasurement(0) + (double)getRadius();// front声纳，正前方
-            double d1 = sonars.getMeasurement(1) + (double)getRadius();// frontleft声纳，左前方
-            double d2 = sonars.getMeasurement(8) + (double)getRadius();// frontright声纳，右前方
+            double d0 = sonars.getMeasurement(0) + (double) getRadius();// front声纳，正前方
+            double d1 = sonars.getMeasurement(1) + (double) getRadius();// frontleft声纳，左前方
+            double d2 = sonars.getMeasurement(8) + (double) getRadius();// frontright声纳，右前方
 
             //计算三个方向障碍物的斥力
             double rf0 = repelForce(d0, 1.0);
@@ -318,60 +306,51 @@ public class APFRobot extends Agent {
 
             double angle = getAngle(direct, allForces);
 
-            if(allForces.length() <= 10) {
+            if (allForces.length() <= 10) {
                 angle = angle * (1 - 0.2 * Math.random());
             }
 
             curForce = allForces.length();
 
             // 判断转动方向
-            if (angle < Math.PI)
-            {
+            if (angle < Math.PI) {
                 setRotationalVelocity(angle);
-            } else if (angle > Math.PI)
-            {
+            } else if (angle > Math.PI) {
                 setRotationalVelocity((angle - 2 * Math.PI));
             }
 
-            if (checkGoal())
-            {
+            if (checkGoal()) {
                 // 到达目标点，停止运动
                 setTranslationalVelocity(0);
                 setRotationalVelocity(0);
                 lamp.setOn(true);
                 endTime = System.currentTimeMillis();
-                if(!flag)
+                if (!flag)
                     System.out.println("人工势场法机器人" + "耗费时间" + (endTime - startTime) + "ms" + "; " + "运动里程：" + getOdometer() + "m;");
                 flag = true;
                 return;
-            } else
-            {
+            } else {
                 lamp.setOn(false);
                 setTranslationalVelocity(0.5);
             }
 
             // 检测是否碰撞
-            if (bumpers.oneHasHit())
-            {
+            if (bumpers.oneHasHit()) {
                 lamp.setBlink(true);
                 // reads the three front quadrants
                 double left = sonars.getFrontLeftQuadrantMeasurement();
                 double right = sonars.getFrontRightQuadrantMeasurement();
                 double front = sonars.getFrontQuadrantMeasurement();
                 //如果靠近障碍物
-                if ((front < 1) || (left < 1) || (right < 1))
-                {
-                    if (left < right)
-                    {
+                if ((front < 1) || (left < 1) || (right < 1)) {
+                    if (left < right) {
                         setRotationalVelocity(-1 - (0.1 * Math.random()));// 随机向右转
-                    } else
-                    {
+                    } else {
                         setRotationalVelocity(1 - (0.1 * Math.random()));// 随机向左转
                     }
                     setTranslationalVelocity(0);
                 }
-            }
-            else
+            } else
                 lamp.setBlink(false);
 
             // 判断是否一直不动

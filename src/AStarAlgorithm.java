@@ -45,7 +45,7 @@ public class AStarAlgorithm {
 
     //节点查找，核心算法
     private List<Node> search(Node sNode, Node eNode) {
-        List<Node> resultList = new ArrayList<Node>();
+        resultList = new ArrayList<Node>();
         boolean isFind = false;
         Node node = null;
         while (openList.size() > 0) {
